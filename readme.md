@@ -1,42 +1,39 @@
-Absolutely — here’s your polished `README.md` file for the `legion-reentrancy-poc` repo, enhanced with badges, tech stack, and a professional structure.
-
----
-
 ````markdown
-# 🛡️ Reentrancy PoC – LegionPreLiquidSaleV1
+# 🧬 LegionPreLiquidSaleV1 – Reentrancy Vulnerability PoC
 
-![Status](https://img.shields.io/badge/status-PoC-success-green)
-![Security](https://img.shields.io/badge/vulnerability-Reentrancy-critical-red)
-![Tech](https://img.shields.io/badge/stack-Solidity%20%7C%20Hardhat-blue)
-
-This repository contains a working **Proof of Concept (PoC)** for a **critical reentrancy vulnerability** found in the `LegionPreLiquidSaleV1` smart contract during a Code4rena audit.
+A critical reentrancy vulnerability uncovered in the `LegionPreLiquidSaleV1` smart contract — this repository demonstrates how a malicious vesting factory can exploit improperly ordered state changes to bypass intended logic.
 
 ---
 
 ## 🚨 Vulnerability Summary
 
-This project demonstrates a **reentrancy vulnerability** in the `claimAskTokenAllocation` function, triggered via a **malicious vesting factory**.
-
-The vulnerability exists because the `_createVesting()` function is called before critical state variables like `position.hasSettled` are updated. This allows malicious contracts to reenter the same function and bypass expected state checks.
-
----
-
-## 🔬 PoC Overview
-
-The PoC test (`test/ReentrancyPoC.test.js`) simulates an attacker calling `claimAskTokenAllocation` via a malicious factory contract, triggering the vulnerability.
-
-### 🧪 Exploit Steps
-
-1. Deploy mock ERC20 token.
-2. Deploy vulnerable `LegionPreLiquidSaleV1` contract.
-3. Deploy `MaliciousVestingFactory` that wraps the sale contract.
-4. Configure the sale using `setTestConfig()`.
-5. Simulate attacker investment.
-6. Call `claimAskTokenAllocation()` — triggers reentrancy during `_createVesting()`.
+The `claimAskTokenAllocation` function makes an external call to `_createVesting()` **before** updating key state variables like `position.hasSettled`.  
+This allows a malicious contract to reenter the function and manipulate the flow — a classic violation of the **Checks-Effects-Interactions** pattern.
 
 ---
 
-## 🔍 Vulnerable Code Snippet
+## 🧪 Proof-of-Concept Overview
+
+The exploit is demonstrated via a targeted unit test that simulates:
+
+- Investor funding the contract
+- Vesting setup being triggered
+- Reentrancy occurring during `_createVesting()` before state update
+
+---
+
+### 🔁 Exploit Steps
+
+1. Deploy a mock ERC20 token
+2. Deploy `LegionPreLiquidSaleV1`
+3. Deploy `MaliciousVestingFactory`, passing the sale contract’s address
+4. Configure the sale using `setTestConfig()`
+5. Simulate an attacker’s investment
+6. Trigger `claimAskTokenAllocation()` → which reenters during `_createVesting()`
+
+---
+
+## 🔍 Vulnerable Code
 
 ```solidity
 address payable vestingAddress = _createVesting(
@@ -49,36 +46,20 @@ address payable vestingAddress = _createVesting(
 SafeTransferLib.safeTransfer(saleStatus.askToken, vestingAddress, amountToBeVested);
 ````
 
-🧨 **Issue**: `_createVesting()` makes an external call **before** updating key state (`position.hasSettled = true;`), breaking the Checks-Effects-Interactions pattern.
+⚠️ This executes an external call before any protective state changes.
 
 ---
 
-## 📁 Project Structure
+## 🧠 Root Cause
 
-```
-contracts/
-  ├── LegionPreLiquidSaleV1.sol        # Vulnerable contract
-  ├── MaliciousVestingFactory.sol      # Reentrancy vector
-  └── MockERC20.sol                    # Mock token for simulation
-
-test/
-  └── ReentrancyPoC.test.js            # The PoC test script
-```
+The logic fails to **update internal state** before making an external call.
+Specifically: `position.hasSettled` and `usedSignatures[...]` should be updated **before** `_createVesting()` is called.
 
 ---
 
-## ⚙️ Tech Stack
+## 💡 Recommended Fix
 
-* Solidity ^0.8.x
-* Hardhat
-* Mocha + Chai (for test assertions)
-* OpenZeppelin (SafeERC20, Ownable)
-
----
-
-## 💡 Suggested Fix
-
-Move state updates *before* the external call:
+Move state changes above external call:
 
 ```solidity
 position.hasSettled = true;
@@ -87,52 +68,69 @@ usedSignatures[signature] = true;
 address payable vestingAddress = _createVesting(...);
 ```
 
-Follow the **Checks-Effects-Interactions** pattern strictly to avoid reentrancy.
+---
+
+## 📁 Project Structure
+
+```
+contracts/
+├── LegionPreLiquidSaleV1.sol        # Vulnerable contract
+├── MaliciousVestingFactory.sol      # Reentrancy attack vector
+└── MockERC20.sol                    # Token for simulating investor funds
+
+test/
+└── ReentrancyPoC.test.js            # Full PoC test
+```
 
 ---
 
-## 🧪 How to Run
+## 🛠 Run It Locally
 
-Install dependencies:
+1. Install dependencies:
 
 ```bash
 npm install
 ```
 
-Compile and test:
+2. Compile contracts:
 
 ```bash
 npx hardhat compile
+```
+
+3. Run PoC test:
+
+```bash
 npx hardhat test test/ReentrancyPoC.test.js
 ```
 
-Expected output:
+✅ Output should confirm the reentrancy scenario was triggered.
 
-```
-PoC: Reentrancy in claimAskTokenAllocation
-  ✔ should trigger reentrancy via malicious vesting factory
-```
+---
+
+## ⚙️ Tools Used
+
+* Solidity ^0.8.x
+* Hardhat
+* Mocha + Chai
+* OpenZeppelin Contracts
+
+---
+
+## 📚 Learnings
+
+* Always follow **Checks-Effects-Interactions**
+* Be cautious when integrating external factories or contracts
+* Use automated testing to simulate real-world attacker behavior
 
 ---
 
 ## ⚠️ Disclaimer
 
-This project is for **educational and audit research purposes only**. Do not deploy or use maliciously.
+This code is strictly for **educational and audit research purposes**.
+Do **not** deploy or use maliciously in any production system.
 
 ---
-
-## 📜 License
-
-MIT
-
----
-
-```
-
----
-
-Would you like this as a downloadable `.md` file or want help committing it to the repo?
-```
 
 
 
