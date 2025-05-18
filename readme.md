@@ -39,7 +39,7 @@ The exploit is demonstrated via a targeted unit test that simulates:
 
  🔍 Vulnerable Code
 
-```solidity
+
 address payable vestingAddress = _createVesting(
     msg.sender,
     uint64(vestingConfig.vestingStartTime),
