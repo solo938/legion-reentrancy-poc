@@ -35,13 +35,13 @@ The exploit is demonstrated via a targeted unit test that simulates:
 
 🔍 Vulnerable Code
 
-```solidity
+````solidity
 address payable vestingAddress = _createVesting(
     msg.sender,
     uint64(vestingConfig.vestingStartTime),
     uint64(vestingConfig.vestingDurationSeconds),
     uint64(vestingConfig.vestingCliffDurationSeconds)
-);```
+);
 
 SafeTransferLib.safeTransfer(saleStatus.askToken, vestingAddress, amountToBeVested);
 ````
