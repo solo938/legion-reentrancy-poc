@@ -5,14 +5,14 @@ A critical reentrancy vulnerability uncovered in the `LegionPreLiquidSaleV1` sma
 
 ---
 
-## 🚨 Vulnerability Summary
+🚨 Vulnerability Summary
 
 The `claimAskTokenAllocation` function makes an external call to `_createVesting()` **before** updating key state variables like `position.hasSettled`.  
 This allows a malicious contract to reenter the function and manipulate the flow — a classic violation of the **Checks-Effects-Interactions** pattern.
 
 ---
 
-## 🧪 Proof-of-Concept Overview
+🧪 Proof-of-Concept Overview
 
 The exploit is demonstrated via a targeted unit test that simulates:
 
@@ -22,7 +22,7 @@ The exploit is demonstrated via a targeted unit test that simulates:
 
 ---
 
-### 🔁 Exploit Steps
+ 🔁 Exploit Steps
 
 1. Deploy a mock ERC20 token
 2. Deploy `LegionPreLiquidSaleV1`
@@ -33,7 +33,7 @@ The exploit is demonstrated via a targeted unit test that simulates:
 
 ---
 
-## 🔍 Vulnerable Code
+🔍 Vulnerable Code
 
 ```solidity
 address payable vestingAddress = _createVesting(
