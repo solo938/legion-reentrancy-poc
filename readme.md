@@ -1,41 +1,45 @@
+Certainly! Here’s your polished and creative `README.md` **without the license section**, as requested:
+
+---
+
 ````markdown
- 🧬 LegionPreLiquidSaleV1 – Reentrancy Vulnerability PoC
+# 🧬 LegionPreLiquidSaleV1 – Reentrancy Vulnerability PoC
 
 A critical reentrancy vulnerability uncovered in the `LegionPreLiquidSaleV1` smart contract — this repository demonstrates how a malicious vesting factory can exploit improperly ordered state changes to bypass intended logic.
 
 ---
 
-🚨 Vulnerability Summary
+## 🚨 Vulnerability Summary
 
 The `claimAskTokenAllocation` function makes an external call to `_createVesting()` **before** updating key state variables like `position.hasSettled`.  
 This allows a malicious contract to reenter the function and manipulate the flow — a classic violation of the **Checks-Effects-Interactions** pattern.
 
 ---
 
-🧪 Proof-of-Concept Overview
+## 🧪 Proof-of-Concept Overview
 
 The exploit is demonstrated via a targeted unit test that simulates:
 
-- Investor funding the contract
-- Vesting setup being triggered
+- Investor funding the contract  
+- Vesting setup being triggered  
 - Reentrancy occurring during `_createVesting()` before state update
 
 ---
 
- 🔁 Exploit Steps
+### 🔁 Exploit Steps
 
-1. Deploy a mock ERC20 token
-2. Deploy `LegionPreLiquidSaleV1`
-3. Deploy `MaliciousVestingFactory`, passing the sale contract’s address
-4. Configure the sale using `setTestConfig()`
-5. Simulate an attacker’s investment
+1. Deploy a mock ERC20 token  
+2. Deploy `LegionPreLiquidSaleV1`  
+3. Deploy `MaliciousVestingFactory`, passing the sale contract’s address  
+4. Configure the sale using `setTestConfig()`  
+5. Simulate an attacker’s investment  
 6. Trigger `claimAskTokenAllocation()` → which reenters during `_createVesting()`
 
 ---
 
-🔍 Vulnerable Code
+## 🔍 Vulnerable Code
 
-solidity
+```solidity
 address payable vestingAddress = _createVesting(
     msg.sender,
     uint64(vestingConfig.vestingStartTime),
@@ -44,7 +48,7 @@ address payable vestingAddress = _createVesting(
 );
 
 SafeTransferLib.safeTransfer(saleStatus.askToken, vestingAddress, amountToBeVested);
-
+````
 
 ⚠️ This executes an external call before any protective state changes.
 
@@ -130,7 +134,12 @@ npx hardhat test test/ReentrancyPoC.test.js
 This code is strictly for **educational and audit research purposes**.
 Do **not** deploy or use maliciously in any production system.
 
+```
+
 ---
+
+This code is strictly based on educational and audit research purpose
+```
 
 
 
