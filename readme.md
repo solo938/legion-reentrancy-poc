@@ -35,7 +35,7 @@ The exploit is demonstrated via a targeted unit test that simulates:
 
 🔍 Vulnerable Code
 
-````solidity
+solidity
 address payable vestingAddress = _createVesting(
     msg.sender,
     uint64(vestingConfig.vestingStartTime),
@@ -44,7 +44,7 @@ address payable vestingAddress = _createVesting(
 );
 
 SafeTransferLib.safeTransfer(saleStatus.askToken, vestingAddress, amountToBeVested);
-````
+
 
 ⚠️ This executes an external call before any protective state changes.
 
