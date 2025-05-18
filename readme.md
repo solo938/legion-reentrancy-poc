@@ -1,5 +1,5 @@
 ````markdown
-# 🧬 LegionPreLiquidSaleV1 – Reentrancy Vulnerability PoC
+ 🧬 LegionPreLiquidSaleV1 – Reentrancy Vulnerability PoC
 
 A critical reentrancy vulnerability uncovered in the `LegionPreLiquidSaleV1` smart contract — this repository demonstrates how a malicious vesting factory can exploit improperly ordered state changes to bypass intended logic.
 
@@ -41,7 +41,7 @@ address payable vestingAddress = _createVesting(
     uint64(vestingConfig.vestingStartTime),
     uint64(vestingConfig.vestingDurationSeconds),
     uint64(vestingConfig.vestingCliffDurationSeconds)
-);
+);```
 
 SafeTransferLib.safeTransfer(saleStatus.askToken, vestingAddress, amountToBeVested);
 ````
